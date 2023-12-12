@@ -301,12 +301,12 @@ func nativeOpen(portName string, mode *Mode) (*unixPort, error) {
 	}
 
 	// This pipe is used as a signal to cancel blocking Read
-	pipe := &unixutils.Pipe{}
-	if err := pipe.Open(); err != nil {
+	if pipe, err := unixutils.NewPipe(); err != nil {
 		port.Close()
 		return nil, &PortError{code: InvalidSerialPort, causedBy: err}
+	} else {
+		port.closeSignal = pipe
 	}
-	port.closeSignal = pipe
 
 	return port, nil
 }
